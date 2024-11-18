@@ -51,6 +51,5 @@ int main()
 
     std::cout << b.getA() << " " << b.getB() << " " << b.getStr() << std::endl;
 
-
     return 0;
 }
