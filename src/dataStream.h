@@ -6,7 +6,7 @@
 #include <list>
 #include <map>
 #include <set>
-#include <iostream>
+#include <unordered_map>
 #include "Serializable.h"
 
 namespace serialize {
@@ -24,6 +24,7 @@ enum class DataType : uint8_t
     LIST,
     MAP,
     SET,
+    UNORDERED_MAP,
     CUSTOM
 };
 
@@ -57,6 +58,9 @@ public:
 
     template<typename K, typename V>
     void write(const std::map<K, V> & value);
+
+    template<typename K, typename V>
+    void write(const std::unordered_map<K, V> & value);
 
     // 自定义类型
     void write(const Serializable & value);
@@ -97,6 +101,12 @@ public:
         return *this;
     }
 
+    template<typename K, typename V>
+    DataStream& operator<< (const std::unordered_map<K, V> & value) {
+        write(value);
+        return *this;
+    }
+
     /*读出重载*/
     bool read(char * data, int len);
     bool read(bool & value);
@@ -118,6 +128,9 @@ public:
 
     template<typename K, typename V>
     bool read(std::map<K, V> & value);
+
+    template<typename K, typename V>
+    bool read(std::unordered_map<K, V> & value);
 
     DataStream & operator >> (bool & value);
     DataStream & operator >> (char & value);
@@ -148,6 +161,12 @@ public:
 
     template<typename K, typename V>
     DataStream & operator >> (std::map<K, V> & value) {
+        read(value);
+        return *this;
+    }
+
+    template<typename K, typename V>
+    DataStream & operator >> (std::unordered_map<K, V> & value) {
         read(value);
         return *this;
     }
@@ -192,6 +211,17 @@ void DataStream::write(const std::set<T> & value) {
 template<typename K, typename V>
 void DataStream::write(const std::map<K, V> & value) {
     char type = static_cast<char>(DataType::MAP);
+    write((char *)&type, sizeof(char));
+    write(static_cast<int>(value.size()));
+    for (const auto& v : value) {
+        write(v.first);
+        write(v.second);
+    }
+}
+
+template<typename K, typename V>
+void DataStream::write(const std::unordered_map<K, V> & value) {
+    char type = static_cast<char>(DataType::UNORDERED_MAP);
     write((char *)&type, sizeof(char));
     write(static_cast<int>(value.size()));
     for (const auto& v : value) {
@@ -262,6 +292,27 @@ bool DataStream::read(std::set<T> & value) {
 template<typename K, typename V>
 bool DataStream::read(std::map<K, V> & value) {
     if(buf_[pos_] != static_cast<char>(DataType::MAP)) {
+        return false;
+    }
+    ++pos_;
+    int len;
+    if(!read(len)) {
+        return false;
+    }
+    for (int i = 0; i < len; ++i) {
+        K k;
+        V v;
+        if(!read(k) || !read(v)) {
+            return false;
+        }
+        value[k] = v;
+    }
+    return true;
+}
+
+template<typename K, typename V>
+bool DataStream::read(std::unordered_map<K, V> & value) {
+    if(buf_[pos_] != static_cast<char>(DataType::UNORDERED_MAP)) {
         return false;
     }
     ++pos_;

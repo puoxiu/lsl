@@ -1,5 +1,5 @@
 #include "dataStream.h"
-
+#include <iostream>
 
 int main()
 {
@@ -11,10 +11,11 @@ int main()
     std::map<int, int> d = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}}, dd;
     std::vector<std::vector<int>> e = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}, ee;
     std::vector<std::string> f = {"hello", "world", "nihao"}, ff;
+    std::unordered_map<int, int> g = {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}}, gg;
 
-    ds << a << b << c << d << e << f;
+    ds << a << b << c << d << e << f << g;
 
-    ds >> aa >> bb >> cc >> dd >> ee >> ff;
+    ds >> aa >> bb >> cc >> dd >> ee >> ff >> gg;
 
     std::cout << "a: ";
     for (auto &i : aa)
@@ -58,6 +59,13 @@ int main()
     for (auto &i : ff)
     {
         std::cout << i << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "g: ";
+    for (auto &i : gg)
+    {
+        std::cout << i.first << " " << i.second << " ";
     }
     std::cout << std::endl;
 

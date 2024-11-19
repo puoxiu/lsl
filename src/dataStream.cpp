@@ -1,8 +1,6 @@
 #include "dataStream.h"
-#include <iostream>
 
 using namespace serialize;
-
 
 DataStream::DataStream(): pos_(0) {
 
@@ -41,6 +39,7 @@ void DataStream::write(const char* data, int len) {
     buf_.resize(size + len);
     std::memcpy(&buf_[size], data, len);
 }
+
 void DataStream::write(bool value) {
     char type = static_cast<char> (DataType::BOOL);
     write((char *)&type, sizeof(char));

@@ -1,5 +1,5 @@
 #include "dataStream.h"
-
+#include <iostream>
 
 int main()
 {
